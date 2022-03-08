@@ -1,34 +1,63 @@
-import {Component} from 'react';
+import { Component } from 'react';
 import MoviesList from '../components/MoviesList';
 import Preloader from '../components/Preloader';
 import SearchPanel from '../components/SearchPanel';
+import Filter from '../components/Filter';
+
+const API_KEY = process.env.REACT_APP_API_KEY;
 
 class Main extends Component {
     state = {
         movies: [],
-        search: '',
-    }
+        filters: 'all',
+        loading: true,
+    };
 
     componentDidMount() {
-        fetch(`http://www.omdbapi.com/?apikey=cb49d2c&s=matrix`)
-        .then(res => res.json())
-        .then(data => this.setState({movies: data.Search}))
+        fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=mortal`)
+            .then((res) => res.json())
+            .then((data) =>
+                this.setState({ movies: data.Search, loading: false })
+            );
     }
 
     updateSearch = (name) => {
-        fetch(`http://www.omdbapi.com/?apikey=cb49d2c&s=${name}`)
-            .then(res => res.json())
-            .then(data => this.setState({movies: data.Search}))
-    }
+        fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${name}`)
+            .then((res) => res.json())
+            .then((data) =>
+                this.setState({ movies: data.Search, loading: false })
+            );
+    };
 
-    render() { 
-        const {movies} = this.state;   
-        return(
-            <main className="container content">
-                <SearchPanel updateSearch={this.updateSearch}/>
-                {movies.length ? <MoviesList movies={movies}/> : <Preloader />}
+    filterItems = (items, filter) => {
+        switch (filter) {
+            case 'movie':
+                return items.filter((item) => item.Type === 'movie');
+            case 'series':
+                return items.filter((item) => item.Type === 'series');
+            case 'game':
+                return items.filter((item) => item.Type === 'game');
+            default:
+                return items;
+        }
+    };
+
+    updateFilter = (filters) => {
+        this.setState({ filters });
+    };
+
+    render() {
+        const { movies, loading, filters } = this.state;
+
+        const content = this.filterItems(movies, filters);
+
+        return (
+            <main className='container content'>
+                <SearchPanel search={this.updateSearch} />
+                <Filter filter={this.updateFilter} />
+                {loading ? <Preloader /> : <MoviesList movies={content} />}
             </main>
-        )
+        );
     }
 }
 
