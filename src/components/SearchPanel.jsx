@@ -1,32 +1,30 @@
-import { Component } from 'react';
+import { useState } from 'react';
 
-class SearchPanel extends Component {
-    state = {
-        search: '',
-    };
+const SearchPanel = (props) => {
+    const { updateSearch } = props;
 
-    handleSearchInput = (evt) => this.setState({ search: evt.target.value });
+    const [search, setSearch] = useState('');
 
-    handleKey = (evt) => {
+    const handleSearchInput = (evt) => setSearch(evt.target.value);
+
+    const handleKey = (evt) => {
         if (evt.key === 'Enter') {
-            this.props.search(this.state.search);
+            updateSearch(search);
         }
     };
 
-    render() {
-        return (
-            <div className='input-field col s12'>
-                <input
-                    className='validate'
-                    type='search'
-                    placeholder='Search'
-                    value={this.state.search}
-                    onChange={this.handleSearchInput}
-                    onKeyDown={this.handleKey}
-                />
-            </div>
-        );
-    }
-}
+    return (
+        <div className='input-field col s12'>
+            <input
+                className='validate'
+                type='search'
+                placeholder='Search'
+                value={search}
+                onChange={handleSearchInput}
+                onKeyDown={handleKey}
+            />
+        </div>
+    );
+};
 
 export default SearchPanel;

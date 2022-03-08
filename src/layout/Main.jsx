@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import MoviesList from '../components/MoviesList';
 import Preloader from '../components/Preloader';
 import SearchPanel from '../components/SearchPanel';
@@ -6,30 +6,25 @@ import Filter from '../components/Filter';
 
 const API_KEY = process.env.REACT_APP_API_KEY;
 
-class Main extends Component {
-    state = {
-        movies: [],
-        filters: 'all',
-        loading: true,
-    };
+const Main = () => {
+    const [movies, setMovies] = useState([]);
+    const [filters, setFilters] = useState('all');
+    const [loading, setLoading] = useState(true);
 
-    componentDidMount() {
-        fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=mortal`)
-            .then((res) => res.json())
-            .then((data) =>
-                this.setState({ movies: data.Search, loading: false })
-            );
-    }
-
-    updateSearch = (name) => {
+    const updateSearch = (name) => {
         fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${name}`)
             .then((res) => res.json())
-            .then((data) =>
-                this.setState({ movies: data.Search, loading: false })
-            );
+            .then((data) => {
+                setMovies(data.Search);
+                setLoading(false);
+            })
+            .catch((err) => {
+                setLoading(false);
+                console.error(err);
+            });
     };
 
-    filterItems = (items, filter) => {
+    const filterItems = (items, filter) => {
         switch (filter) {
             case 'movie':
                 return items.filter((item) => item.Type === 'movie');
@@ -42,23 +37,21 @@ class Main extends Component {
         }
     };
 
-    updateFilter = (filters) => {
-        this.setState({ filters });
+    const updateFilter = (filters) => {
+        setFilters(filters);
     };
 
-    render() {
-        const { movies, loading, filters } = this.state;
+    const content = filterItems(movies, filters);
 
-        const content = this.filterItems(movies, filters);
+    useEffect(() => updateSearch('matrix'), []);
 
-        return (
-            <main className='container content'>
-                <SearchPanel search={this.updateSearch} />
-                <Filter filter={this.updateFilter} />
-                {loading ? <Preloader /> : <MoviesList movies={content} />}
-            </main>
-        );
-    }
-}
+    return (
+        <main className='container content'>
+            <SearchPanel updateSearch={updateSearch} />
+            <Filter filter={updateFilter} />
+            {loading ? <Preloader /> : <MoviesList movies={content} />}
+        </main>
+    );
+};
 
 export default Main;
