@@ -2,4 +2,4 @@
 
 [Demo](https://KabanovN.github.io/react-movies).
 
-Portfolio Project using [API](https://www.omdbapi.com)
+Portfolio Project using [OMDb API](https://www.omdbapi.com)
